@@ -21,7 +21,7 @@ def main():  # pylint: disable=too-many-branches,too-many-statements
     """Generate lpmake command."""
     print("""
     ******************************
-    * Generate lpmake lpmake_cmd *
+    *  Generate lpmake command   *
     * GH: arichr/android-things  *
     ******************************
     """)
@@ -34,7 +34,7 @@ def main():  # pylint: disable=too-many-branches,too-many-statements
     print('[...] Trying to find images...')
     images = tuple(image_dir.glob('*.[iI][mM][gG]'))
     if not images:
-        print('No images was found.')
+        print('No images were found.')
         sys.exit(1)
 
     print('Which mode do you prefer?')
@@ -95,17 +95,37 @@ def main():  # pylint: disable=too-many-branches,too-many-statements
         is_sparse = ''
 
     if images_size % block_size != 0:
-        print('[!] Wrong image sizes.')
-        sys.exit(1)
+        print('[!] Output super filesize is not correct. Checking images...')
+        for image_path in images:
+            incomplete_block = image_path.stat().st_size % block_size
+
+            if incomplete_block == 0:
+                print(f'[!] Note: {image_path.name} is OK.')
+                break
+
+            file_header = tuple(image_path.read_bytes()[:4])
+            if file_header == (0x3A, 0xFF, 0x26, 0xED):
+                # This is an Android sparse image
+                print(
+                    f'[!] Note: We are unable to check {image_path.name}',
+                    'blocks, due to the usage of sparse images.',
+                    "But don't use the raw ones and IGNORE this notice.",
+                )
+            else:
+                print(
+                    f'[!] {image_path.name} has a problem',
+                    f'(Expected {block_size - incomplete_block} more bytes).',
+                )
+                sys.exit(1)
 
     print('[!] Note: metadata-size set to 65536.')
-    print('[!] Note: super-name set to super.\n')
+    print('[!] Note: super-name set to super.')
 
     lpmake_cmd = (
         './lpmake --metadata-size 65536 --super-name super '
         f'--metadata-slots {2 if is_ab else 1} --device super:{super_size} '
-        f'--group main:{images_size} {partitions} {is_sparse} '
-        f'--output ./super.{hash(partitions)}.img'
+        f'--group main:{images_size} {" ".join(partitions)} {is_sparse} '
+        f'--output ./super.{hash(tuple(partitions))}.img'
     )
 
     print('\nResult:\n')
