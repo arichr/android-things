@@ -51,7 +51,7 @@ def ask_sparse_image(raw_image_path: Path) -> (Path, Path):
             '[!] It seems, you overwritten the raw image.',
             "Please, DON'T do it again.",
         )
-        return ask_raw_image(sparse_image_path), sparse_image_path
+        return ask_raw_image(sparse_image_path)
 
     return raw_image_path, sparse_image_path
 
@@ -85,7 +85,7 @@ def ask_raw_image(sparse_image_path: Path) -> (Path, Path):
             '[!] It seems, you overwritten the sparse image.',
             "Please, DON'T do it again.",
         )
-        return raw_image_path, ask_sparse_image(raw_image_path)
+        return ask_sparse_image(raw_image_path)
 
     return raw_image_path, sparse_image_path
 
@@ -106,7 +106,8 @@ def get_partition_images(image_path: Path) -> (Path, Path):
     return ask_sparse_image(image_path)
 
 
-def main():  # pylint: disable=too-many-branches,too-many-statements
+# pylint: disable=too-many-branches,too-many-statements,too-many-locals
+def main():
     """Generate lpmake command."""
     print("""
     ******************************
@@ -156,19 +157,24 @@ def main():  # pylint: disable=too-many-branches,too-many-statements
                 print('[!] Note: This will be a RW partition.')
                 image_mode = 'none'
 
-        print(
-            '[!] Note: Keep the sparse image name clean',
-            "(e.g. 'system_a.img').",
-        )
-        # Note: Unlike raw_images_paths, images can contain
+        # Note: Unlike raw_images_paths, 'images' can contain
         # either sparse or raw images.
         raw_image_path, image_path = get_partition_images(image_path)
         raw_images_paths.append(raw_image_path)
 
+        if image_path.stem.isalpha():
+            partition_name = image_path.stem
+        else:
+            print(
+                "[!] Note: Falling back to raw image's name",
+                'for identifying a partition.',
+            )
+            partition_name = raw_image_path.stem
+
         images_size += raw_image_path.stat().st_size
         partitions.append(
             '--partition {name}:{ro}:{size}:main --image {name}={path}'.format(
-                name=image_path.stem,
+                name=partition_name,
                 ro=image_mode if mode == 'ask' else mode,
                 size=raw_image_path.stat().st_size,
                 path=str(image_path),
