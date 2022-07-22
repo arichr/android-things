@@ -38,6 +38,12 @@ for ctx_rule in "$context_rules"
 do
 	context="${ctx_rule##* }"
 	regex="${ctx_rule% *}"
+	case "$regex" in
+		*\;*)
+			echo " - Possible command injection. Skipping..."
+			continue
+			;;
+	esac
 	files=$(find . -maxdepth 1 -regextype egrep -regex ".*$regex" -printf '/%P\n')
 	for target_file in $files
 	do
