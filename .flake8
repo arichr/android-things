@@ -1,3 +1,0 @@
-[flake8]
-; WPS - too strict
-ignore=WPS

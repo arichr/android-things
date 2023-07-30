@@ -1,10 +1,15 @@
-# Android things
-![Android](https://img.shields.io/badge/-ANDROID-gray?logo=android&style=flat-square)
-![GitHub Repo stars](https://img.shields.io/github/stars/arichr/android-things?logo=github&style=flat-square)
-![GitHub](https://img.shields.io/github/license/arichr/android-things?style=flat-square)
-## Why?
-This repository contains different scripts to make doing some tasks easier.
+<p align="center">
+    <h1 align="center">Android Things</h1>
+    <p align="center">Programs and scripts to make working with Android easier.</p>
+</p>
 
-For now, it contains:
- * [genselinuxctx.sh](https://github.com/arichr/android-things/blob/main/genselinuxctx.sh) - **Generate SELinux context for extracted partitions**
- * [genlpmake.py](https://github.com/arichr/android-things/blob/main/genlpmake.py) - **Generate lpmake command**
+## Contents
+
+* **[bootinfo](bootinfo/)** - An utility for parsing the header section of Android boot images.
+    * [Linux x86_64 with ANSI colors](bootinfo/build/bootinfo)
+    * [Linux x86_64](bootinfo/build/bootinfo-textonly)
+
+## Deprecated
+
+* **[genlpmake.py](deprecated/genlpmake.py)** - Generate lpmake command
+* **[genselinuxctx.sh](deprecated/genselinuxctx.sh)** - Generate SELinux context for extracted partitions
